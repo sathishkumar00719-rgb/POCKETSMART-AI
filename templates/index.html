@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}PocketSmart AI - Smart Budget Planning{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>PocketSmart AI</h1>
+  <p>AI-powered budget planning for home interiors, parties, and jewelry shopping. Get personalized, budget-aware recommendations across Amazon, Flipkart, IKEA, Swiggy, Zomato, OYO and more.</p>
+  <div class="actions">
+    {% if user %}
+      <a href="/dashboard" class="btn">Go to Dashboard</a>
+    {% else %}
+      <a href="/register" class="btn">Get Started</a>
+      <a href="/login" class="btn secondary">Sign In</a>
+    {% endif %}
+  </div>
+</div>
+
+<h2 style="text-align:center;">Our Smart Budget Planners</h2>
+<p style="text-align:center; color: var(--text-dim);">Discover how PocketSmart helps you make better financial decisions across different areas of your life</p>
+
+<div class="cards-grid">
+  <div class="card">
+    <div class="planner-icon">🏠</div>
+    <h3>Home Interior Planner</h3>
+    <p>Get personalized recommendations for furniture, lighting, and decor that fit your style preferences and budget constraints.</p>
+  </div>
+  <div class="card">
+    <div class="planner-icon">🎉</div>
+    <h3>Party Budget Planner</h3>
+    <p>Plan your perfect event with smart budget allocations for venue, catering, decorations, and entertainment.</p>
+  </div>
+  <div class="card">
+    <div class="planner-icon">💍</div>
+    <h3>Jewelry Budget Planner</h3>
+    <p>Find the ideal jewelry pieces for any occasion that match your outfit and budget, with optional outfit-image analysis.</p>
+  </div>
+</div>
+{% endblock %}

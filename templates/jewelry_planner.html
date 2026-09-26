@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Jewelry Planner - PocketSmart AI{% endblock %}
+{% block content %}
+<h1>💍 Jewelry Budget Planner</h1>
+<p style="color: var(--text-dim);">Get AI-powered jewelry recommendations within your budget for any occasion.</p>
+
+<form id="jewelry-form">
+  <div class="form-section">
+    <h3>💰 Budget Details</h3>
+    <div class="field"><label>Total Budget (₹)</label><input type="number" id="total_budget" min="1" value="10000" required></div>
+  </div>
+
+  <div class="form-section">
+    <h3>🎊 Occasion &amp; Preferences</h3>
+    <div class="field">
+      <label>Occasion</label>
+      <input type="text" id="occasion" placeholder="e.g. Wedding, Birthday, Anniversary" value="Birthday" required>
+    </div>
+    <div class="field">
+      <label>Style Preferences</label>
+      <textarea id="preferences" placeholder="Describe your style preferences, materials, colors, etc."></textarea>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h3>📷 Upload Outfit Image (optional)</h3>
+    <div class="field">
+      <input type="file" id="image" accept="image/*">
+      <div id="preview-wrap" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <button type="submit" class="btn full">Get Recommendations</button>
+</form>
+
+<div id="results" class="results-wrap"></div>
+
+<script>
+document.getElementById("image").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  const wrap = document.getElementById("preview-wrap");
+  wrap.innerHTML = "";
+  if (file) {
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    img.style.maxWidth = "220px";
+    img.style.borderRadius = "10px";
+    img.style.border = "1px solid var(--border)";
+    wrap.appendChild(img);
+  }
+});
+
+document.getElementById("jewelry-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.innerHTML = '<div class="loading">Analyzing your request and generating jewelry recommendations...</div>';
+
+  const formData = new FormData();
+  formData.append("total_budget", document.getElementById("total_budget").value);
+  formData.append("occasion", document.getElementById("occasion").value);
+  formData.append("preferences", document.getElementById("preferences").value || "");
+  const imageFile = document.getElementById("image").files[0];
+  if (imageFile) formData.append("image", imageFile);
+
+  try {
+    const res = await fetch("/generate-jewelry", { method: "POST", body: formData });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Failed to generate recommendations");
+    renderJewelryResults(data);
+  } catch (err) {
+    resultsDiv.innerHTML = `<div class="alert error">${err.message}</div>`;
+  }
+});
+
+function renderJewelryResults(data) {
+  const resultsDiv = document.getElementById("results");
+  const mockBadge = data._source === "mock" ? '<span class="badge-mock">MOCK DATA - add GOOGLE_API_KEY for live AI</span>' : '';
+
+  let html = `
+    <div class="summary-bar">
+      <div class="stat"><div class="value">₹${data.total_budget.toFixed(2)}</div><div class="label">Total Budget</div></div>
+      <div class="stat"><div class="value">₹${(data.remaining_budget || 0).toFixed(2)}</div><div class="label">Remaining Budget</div></div>
+      <div>${mockBadge}</div>
+    </div>`;
+
+  if (data.outfit_analysis) {
+    const oa = data.outfit_analysis;
+    html += `<div class="suggestions-box"><strong>👗 Outfit Analysis</strong>
+      <p style="color:var(--text-dim); margin: 8px 0 0;">
+        Colors: ${(oa.colors || []).join(", ") || "N/A"} &nbsp;|&nbsp;
+        Style: ${oa.style || "N/A"} &nbsp;|&nbsp;
+        Formality: ${oa.formality || "N/A"}
+      </p></div>`;
+  }
+
+  html += `<div class="category-block"><div class="cat-header"><span>Jewelry Recommendations</span></div>`;
+  (data.jewelry_recommendations || []).forEach(item => {
+    html += renderItem({
+      name: item.item_type,
+      description: `${item.description || ""} (Style: ${item.style || "N/A"})`,
+      estimated_price: item.estimated_price,
+      shopping_links: item.shopping_links
+    });
+  });
+  html += `</div>`;
+
+  if (data.styling_tips && data.styling_tips.length) {
+    html += `<div class="suggestions-box"><strong>✨ Styling Tips</strong><ul>`;
+    data.styling_tips.forEach(s => html += `<li>${s}</li>`);
+    html += `</ul></div>`;
+  }
+
+  resultsDiv.innerHTML = html;
+}
+
+function renderItem(item) {
+  let links = "";
+  if (item.shopping_links) {
+    for (const [platform, url] of Object.entries(item.shopping_links)) {
+      links += `<a href="${url}" target="_blank" rel="noopener">${platform}</a>`;
+    }
+  }
+  return `<div class="item-row">
+    <div class="item-top">
+      <span class="item-name" style="text-transform:capitalize;">${item.name || ""}</span>
+      <span class="item-price">₹${(item.estimated_price || 0).toFixed(2)}</span>
+    </div>
+    <div class="item-desc">${item.description || ""}</div>
+    <div class="shop-links">${links}</div>
+  </div>`;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,841 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - PocketSmart AI{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   POCKETSMART DASHBOARD
+   GLOSSY 3D PLANNER ICONS
+========================================================= */
+
+.planner-icon {
+    width: 92px;
+    height: 92px;
+
+    border-radius: 27px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 20px;
+
+    position: relative;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(255,255,255,0.20);
+
+    box-shadow:
+        0 12px 30px rgba(0,0,0,0.25),
+        inset 0 2px 3px rgba(255,255,255,0.35),
+        inset 0 -5px 12px rgba(0,0,0,0.12);
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+
+/* =========================================================
+   GLOSSY LIGHT
+========================================================= */
+
+.planner-icon::before {
+    content: "";
+
+    position: absolute;
+
+    width: 100%;
+    height: 45%;
+
+    top: 0;
+    left: 0;
+
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.30),
+        rgba(255,255,255,0)
+    );
+
+    border-radius: 27px 27px 50% 50%;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   SMALL SHINE
+========================================================= */
+
+.planner-icon::after {
+    content: "";
+
+    position: absolute;
+
+    width: 25px;
+    height: 25px;
+
+    top: 9px;
+    left: 13px;
+
+    background: rgba(255,255,255,0.20);
+
+    border-radius: 50%;
+
+    filter: blur(5px);
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   SVG
+========================================================= */
+
+.planner-icon svg {
+    width: 65px;
+    height: 65px;
+
+    position: relative;
+    z-index: 2;
+
+    overflow: visible;
+
+    filter:
+        drop-shadow(
+            0 7px 7px
+            rgba(0,0,0,0.28)
+        );
+
+    transition:
+        transform 0.3s ease;
+}
+
+
+/* =========================================================
+   HOME
+========================================================= */
+
+.home-icon {
+
+    background:
+        radial-gradient(
+            circle at 30% 20%,
+            #6ceaff 0%,
+            #29c8ff 30%,
+            #2788f5 65%,
+            #575be9 100%
+        );
+
+    box-shadow:
+        0 12px 32px rgba(0,180,255,0.30),
+        inset 0 2px 4px rgba(255,255,255,0.40),
+        inset 0 -7px 14px rgba(32,70,180,0.25);
+}
+
+
+/* =========================================================
+   PARTY
+========================================================= */
+
+.party-icon {
+
+    background:
+        radial-gradient(
+            circle at 30% 20%,
+            #9d8aff 0%,
+            #7c55f5 32%,
+            #b63ee9 68%,
+            #e34bc8 100%
+        );
+
+    box-shadow:
+        0 12px 32px rgba(157,70,255,0.30),
+        inset 0 2px 4px rgba(255,255,255,0.40),
+        inset 0 -7px 14px rgba(110,30,170,0.25);
+}
+
+
+/* =========================================================
+   JEWELRY
+========================================================= */
+
+.jewelry-icon {
+
+    background:
+        radial-gradient(
+            circle at 30% 20%,
+            #ffd3d8 0%,
+            #ff9cae 28%,
+            #f06b8b 62%,
+            #dc4f83 100%
+        );
+
+    box-shadow:
+        0 12px 32px rgba(255,95,140,0.30),
+        inset 0 2px 4px rgba(255,255,255,0.45),
+        inset 0 -7px 14px rgba(180,45,90,0.22);
+}
+
+
+/* =========================================================
+   HOVER
+========================================================= */
+
+.card:hover .planner-icon {
+
+    transform:
+        translateY(-7px)
+        scale(1.04);
+
+    box-shadow:
+        0 18px 38px rgba(0,180,255,0.35),
+        inset 0 2px 4px rgba(255,255,255,0.40);
+}
+
+.card:hover .planner-icon svg {
+    transform: scale(1.05);
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.cards-grid .card {
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.cards-grid .card:hover {
+    transform: translateY(-4px);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .planner-icon {
+        width: 78px;
+        height: 78px;
+
+        border-radius: 23px;
+    }
+
+    .planner-icon svg {
+        width: 55px;
+        height: 55px;
+    }
+}
+
+</style>
+
+
+<!-- =====================================================
+     WELCOME
+===================================================== -->
+
+<h1>Welcome, {{ user.username }}!</h1>
+
+<p style="color: var(--text-dim);">
+    Choose a budget planner to get started with your
+    personalized financial planning experience.
+</p>
+
+
+<!-- =====================================================
+     PLANNER CARDS
+===================================================== -->
+
+<div class="cards-grid">
+
+
+    <!-- =================================================
+         HOME BUDGET PLANNER
+    ================================================== -->
+
+    <div class="card">
+
+        <div class="planner-icon home-icon">
+
+            <svg
+                viewBox="0 0 100 100"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <!-- House shadow -->
+
+                <ellipse
+                    cx="50"
+                    cy="84"
+                    rx="31"
+                    ry="6"
+                    fill="rgba(0,0,0,0.16)"
+                />
+
+                <!-- House body -->
+
+                <path
+                    d="M25 47
+                       L50 27
+                       L75 47
+                       V76
+                       Q75 80 71 80
+                       H29
+                       Q25 80 25 76
+                       Z"
+
+                    fill="#fffdf8"
+                />
+
+                <!-- Roof -->
+
+                <path
+                    d="M18 48
+                       L50 20
+                       L82 48
+                       L75 54
+                       L50 32
+                       L25 54
+                       Z"
+
+                    fill="#263d73"
+                />
+
+                <!-- Roof highlight -->
+
+                <path
+                    d="M22 46
+                       L50 22
+                       L78 46"
+
+                    fill="none"
+                    stroke="#ffffff"
+                    stroke-opacity="0.35"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                />
+
+                <!-- Main window -->
+
+                <rect
+                    x="39"
+                    y="43"
+                    width="22"
+                    height="19"
+                    rx="4"
+                    fill="#ffd66b"
+                />
+
+                <!-- Window glow -->
+
+                <rect
+                    x="42"
+                    y="46"
+                    width="16"
+                    height="13"
+                    rx="2"
+                    fill="#fff2a8"
+                />
+
+                <!-- Window cross -->
+
+                <path
+                    d="M50 46V59M42 52.5H58"
+
+                    stroke="#f5ad35"
+                    stroke-width="2"
+                />
+
+                <!-- Door -->
+
+                <rect
+                    x="43"
+                    y="61"
+                    width="14"
+                    height="19"
+                    rx="5"
+                    fill="#17345f"
+                />
+
+                <!-- Door glow -->
+
+                <rect
+                    x="46"
+                    y="64"
+                    width="8"
+                    height="13"
+                    rx="2"
+                    fill="#28568c"
+                />
+
+                <!-- Door knob -->
+
+                <circle
+                    cx="53"
+                    cy="71"
+                    r="1.5"
+                    fill="#ffd45c"
+                />
+
+                <!-- Bush left -->
+
+                <circle
+                    cx="25"
+                    cy="73"
+                    r="9"
+                    fill="#42c985"
+                />
+
+                <circle
+                    cx="18"
+                    cy="77"
+                    r="7"
+                    fill="#2eae72"
+                />
+
+                <!-- Bush right -->
+
+                <circle
+                    cx="75"
+                    cy="73"
+                    r="9"
+                    fill="#42c985"
+                />
+
+                <circle
+                    cx="82"
+                    cy="77"
+                    r="7"
+                    fill="#2eae72"
+                />
+
+            </svg>
+
+        </div>
+
+
+        <h3>Home Budget Planner</h3>
+
+        <p>
+            Plan your interior design budget efficiently with
+            AI-powered recommendations for furniture, lighting,
+            and more.
+        </p>
+
+        <a
+            href="/home-planner"
+            class="btn full">
+            Get Started
+        </a>
+
+    </div>
+
+
+
+    <!-- =================================================
+         PARTY BUDGET PLANNER
+    ================================================== -->
+
+    <div class="card">
+
+        <div class="planner-icon party-icon">
+
+            <svg
+                viewBox="0 0 100 100"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <!-- Party popper shadow -->
+
+                <ellipse
+                    cx="42"
+                    cy="82"
+                    rx="24"
+                    ry="5"
+                    fill="rgba(0,0,0,0.18)"
+                />
+
+                <!-- Popper -->
+
+                <path
+                    d="M18 70
+                       L57 38
+                       L68 81
+                       Z"
+
+                    fill="#ff5b9a"
+                    stroke="#ffffff"
+                    stroke-opacity="0.45"
+                    stroke-width="2"
+                />
+
+                <!-- Popper yellow stripe -->
+
+                <path
+                    d="M30 61
+                       L41 52
+                       L51 76
+                       L40 79
+                       Z"
+
+                    fill="#ffd84d"
+                />
+
+                <!-- Popper purple stripe -->
+
+                <path
+                    d="M47 47
+                       L57 39
+                       L65 69
+                       L54 73
+                       Z"
+
+                    fill="#8e55ff"
+                />
+
+                <!-- Popper opening -->
+
+                <ellipse
+                    cx="58"
+                    cy="38"
+                    rx="10"
+                    ry="6"
+                    transform="rotate(-38 58 38)"
+                    fill="#5421a5"
+                />
+
+                <!-- Confetti ribbons -->
+
+                <path
+                    d="M56 27
+                       C46 20 54 13 63 18
+                       C72 23 66 8 76 10"
+
+                    fill="none"
+                    stroke="#42dfff"
+                    stroke-width="5"
+                    stroke-linecap="round"
+                />
+
+                <path
+                    d="M64 28
+                       C73 20 67 14 76 15
+                       C84 16 82 7 88 6"
+
+                    fill="none"
+                    stroke="#ffdd45"
+                    stroke-width="5"
+                    stroke-linecap="round"
+                />
+
+                <!-- Confetti stars -->
+
+                <path
+                    d="M76 31
+                       L79 38
+                       L87 39
+                       L81 44
+                       L83 52
+                       L76 48
+                       L69 52
+                       L71 44
+                       L65 39
+                       L73 38
+                       Z"
+
+                    fill="#ffcf45"
+                />
+
+                <!-- Small circles -->
+
+                <circle
+                    cx="79"
+                    cy="20"
+                    r="4"
+                    fill="#ff72ad"
+                />
+
+                <circle
+                    cx="88"
+                    cy="30"
+                    r="3"
+                    fill="#50dfff"
+                />
+
+                <circle
+                    cx="69"
+                    cy="11"
+                    r="3"
+                    fill="#ffd84d"
+                />
+
+                <!-- Sparkles -->
+
+                <path
+                    d="M30 30V42M24 36H36"
+
+                    stroke="#ffffff"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                />
+
+                <path
+                    d="M78 58V67M73 62H83"
+
+                    stroke="#ffffff"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                />
+
+            </svg>
+
+        </div>
+
+
+        <h3>Party Budget Planner</h3>
+
+        <p>
+            Plan your perfect event with budget allocations
+            for venue, catering, decorations, and entertainment.
+        </p>
+
+        <a
+            href="/party-planner"
+            class="btn full">
+            Get Started
+        </a>
+
+    </div>
+
+
+
+    <!-- =================================================
+         JEWELRY BUDGET PLANNER
+    ================================================== -->
+
+    <div class="card">
+
+        <div class="planner-icon jewelry-icon">
+
+            <svg
+                viewBox="0 0 100 100"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <!-- Ring shadow -->
+
+                <ellipse
+                    cx="50"
+                    cy="82"
+                    rx="25"
+                    ry="5"
+                    fill="rgba(0,0,0,0.18)"
+                />
+
+                <!-- Ring -->
+
+                <ellipse
+                    cx="50"
+                    cy="62"
+                    rx="27"
+                    ry="20"
+                    fill="none"
+                    stroke="#f4b72e"
+                    stroke-width="9"
+                />
+
+                <!-- Ring highlight -->
+
+                <path
+                    d="M27 61
+                       C28 45 39 39 50 39
+                       C61 39 72 45 73 61"
+
+                    fill="none"
+                    stroke="#ffe28a"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                />
+
+                <!-- Diamond -->
+
+                <path
+                    d="M35 37
+                       L43 22
+                       L57 22
+                       L65 37
+                       L50 52
+                       Z"
+
+                    fill="#dff8ff"
+                    stroke="#ffffff"
+                    stroke-width="2"
+                />
+
+                <!-- Diamond blue facet -->
+
+                <path
+                    d="M43 22
+                       L50 37
+                       L57 22
+                       Z"
+
+                    fill="#8ee7ff"
+                />
+
+                <!-- Diamond lower facet -->
+
+                <path
+                    d="M35 37
+                       L50 37
+                       L50 52
+                       Z"
+
+                    fill="#bdefff"
+                />
+
+                <path
+                    d="M65 37
+                       L50 37
+                       L50 52
+                       Z"
+
+                    fill="#7edcff"
+                />
+
+                <!-- Gold setting -->
+
+                <path
+                    d="M35 37
+                       H65"
+
+                    stroke="#ffd65b"
+                    stroke-width="5"
+                    stroke-linecap="round"
+                />
+
+                <!-- Shine -->
+
+                <path
+                    d="M25 27
+                       L28 33
+                       L34 36
+                       L28 39
+                       L25 45
+                       L22 39
+                       L16 36
+                       L22 33
+                       Z"
+
+                    fill="#ffffff"
+                    fill-opacity="0.85"
+                />
+
+                <path
+                    d="M74 20V28M70 24H78"
+
+                    stroke="#ffffff"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                />
+
+            </svg>
+
+        </div>
+
+
+        <h3>Jewelry Budget Planner</h3>
+
+        <p>
+            Find the ideal jewelry pieces for any occasion
+            that match your outfit and stay within your budget.
+        </p>
+
+        <a
+            href="/jewelry-planner"
+            class="btn full">
+            Get Started
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     HISTORY BUTTON
+===================================================== -->
+
+<div style="text-align:center; margin: 20px 0;">
+
+    <a
+        href="/history"
+        class="btn secondary">
+        View All Recommendation History
+    </a>
+
+</div>
+
+
+<!-- =====================================================
+     RECENT ACTIVITY
+===================================================== -->
+
+<div class="form-section">
+
+    <h3>📋 Recent Activity</h3>
+
+    {% if recent %}
+
+        {% for item in recent %}
+
+        <div class="history-card">
+
+            <div class="top">
+
+                <div>
+
+                    <strong>
+                        {{ item.result_summary }}
+                    </strong>
+
+                    <div
+                        style="
+                        color: var(--text-dim);
+                        font-size: 0.85rem;
+                        ">
+
+                        {{ item.timestamp[:19] }}
+
+                    </div>
+
+                </div>
+
+                <span class="tag">
+                    {{ item.recommendation_type }}
+                </span>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p style="color: var(--text-dim);">
+            No recommendations yet - try one of the planners above!
+        </p>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

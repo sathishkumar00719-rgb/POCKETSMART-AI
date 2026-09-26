@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Party Planner - PocketSmart AI{% endblock %}
+{% block content %}
+<h1>🎉 Party Budget Planner</h1>
+<p style="color: var(--text-dim);">Plan your perfect event with AI-powered budget recommendations.</p>
+
+<form id="party-form">
+  <div class="form-section">
+    <h3>💰 Basic Information</h3>
+    <div class="two-col">
+      <div class="field"><label>Total Budget (₹)</label><input type="number" id="total_budget" min="1" value="20000" required></div>
+      <div class="field"><label>Number of Guests</label><input type="number" id="num_guests" min="1" value="20" required></div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h3>🎈 Event Details</h3>
+    <div class="two-col">
+      <div class="field">
+        <label>Party Type</label>
+        <select id="party_type">
+          <option>Birthday</option>
+          <option>Wedding</option>
+          <option>Anniversary</option>
+          <option>Corporate</option>
+          <option>Baby Shower</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Venue Type</label>
+        <select id="venue_type">
+          <option value="Home">Home</option>
+          <option value="Banquet Hall">Banquet Hall</option>
+          <option value="Outdoor">Outdoor</option>
+          <option value="Restaurant">Restaurant</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h3>📦 Party Needs</h3>
+    <div class="checkbox-row">
+      <label><input type="checkbox" id="needs_catering" checked> Catering</label>
+      <label><input type="checkbox" id="needs_decoration" checked> Decoration</label>
+      <label><input type="checkbox" id="needs_entertainment" checked> Entertainment</label>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h3>📝 Additional Requirements</h3>
+    <div class="field">
+      <textarea id="additional_requirements" placeholder="Special requests, themes, dietary restrictions, etc."></textarea>
+    </div>
+  </div>
+
+  <button type="submit" class="btn full">Generate Budget Plan</button>
+</form>
+
+<div id="results" class="results-wrap"></div>
+
+<script>
+document.getElementById("party-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.innerHTML = '<div class="loading">Generating your party budget plan...</div>';
+
+  const payload = {
+    total_budget: parseFloat(document.getElementById("total_budget").value),
+    num_guests: parseInt(document.getElementById("num_guests").value || 1),
+    party_type: document.getElementById("party_type").value,
+    venue_type: document.getElementById("venue_type").value,
+    needs_catering: document.getElementById("needs_catering").checked,
+    needs_decoration: document.getElementById("needs_decoration").checked,
+    needs_entertainment: document.getElementById("needs_entertainment").checked,
+    additional_requirements: document.getElementById("additional_requirements").value || null
+  };
+
+  try {
+    const res = await fetch("/generate-party", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Failed to generate recommendations");
+    renderPartyResults(data);
+  } catch (err) {
+    resultsDiv.innerHTML = `<div class="alert error">${err.message}</div>`;
+  }
+});
+
+function renderPartyResults(data) {
+  const resultsDiv = document.getElementById("results");
+  const mockBadge = data._source === "mock" ? '<span class="badge-mock">MOCK DATA - add GOOGLE_API_KEY for live AI</span>' : '';
+
+  let html = `
+    <div class="summary-bar">
+      <div class="stat"><div class="value">₹${data.total_budget.toFixed(2)}</div><div class="label">Total Budget</div></div>
+      <div class="stat"><div class="value">₹${(data.remaining_budget || 0).toFixed(2)}</div><div class="label">Remaining Budget</div></div>
+      <div>${mockBadge}</div>
+    </div>`;
+
+  (data.budget_breakdown || []).forEach(category => {
+    html += `<div class="category-block">
+      <div class="cat-header"><span>${category.category}</span><span>₹${(category.allocation || 0).toFixed(2)}</span></div>`;
+    (category.items || []).forEach(item => html += renderItem(item));
+    html += `</div>`;
+  });
+
+  if (data.venue_suggestions && data.venue_suggestions.length) {
+    html += `<div class="category-block"><div class="cat-header"><span>Venue Suggestions</span></div>`;
+    data.venue_suggestions.forEach(v => {
+      html += renderItem({name: v.name, description: `${v.type || ""} - capacity ${v.capacity || "N/A"}`, estimated_price: v.estimated_cost, shopping_links: v.shopping_links});
+    });
+    html += `</div>`;
+  }
+
+  if (data.additional_suggestions && data.additional_suggestions.length) {
+    html += `<div class="suggestions-box"><strong>💡 Additional Suggestions</strong><ul>`;
+    data.additional_suggestions.forEach(s => html += `<li>${s}</li>`);
+    html += `</ul></div>`;
+  }
+
+  resultsDiv.innerHTML = html;
+}
+
+function renderItem(item) {
+  let links = "";
+  if (item.shopping_links) {
+    for (const [platform, url] of Object.entries(item.shopping_links)) {
+      links += `<a href="${url}" target="_blank" rel="noopener">${platform}</a>`;
+    }
+  }
+  return `<div class="item-row">
+    <div class="item-top">
+      <span class="item-name">${item.name || ""}</span>
+      <span class="item-price">₹${(item.estimated_price || 0).toFixed(2)}</span>
+    </div>
+    <div class="item-desc">${item.description || ""}</div>
+    <div class="shop-links">${links}</div>
+  </div>`;
+}
+</script>
+{% endblock %}

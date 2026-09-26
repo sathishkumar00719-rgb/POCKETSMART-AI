@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Sign In - PocketSmart AI{% endblock %}
+{% block content %}
+<div class="auth-box">
+  <h2>Welcome Back</h2>
+  <div id="alert-box"></div>
+  <form id="login-form">
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="username" required>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" required>
+      <p style="text-align:center; margin-top:10px;">
+    <a href="/forgot-password">
+        Forgot Password?
+    </a>
+</p>
+    </div>
+    <button type="submit" class="btn full">Sign In</button>
+  </form>
+  <div class="switch">Don't have an account? <a href="/register">Create Account</a></div>
+</div>
+
+<script>
+document.getElementById("login-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const alertBox = document.getElementById("alert-box");
+  alertBox.innerHTML = "";
+
+  const formData = new URLSearchParams();
+  formData.append("username", document.getElementById("username").value);
+  formData.append("password", document.getElementById("password").value);
+
+  try {
+    const res = await fetch("/token", {
+      method: "POST",
+      headers: {"Content-Type": "application/x-www-form-urlencoded"},
+      body: formData
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Login failed");
+    window.location.href = "/dashboard";
+  } catch (err) {
+    alertBox.innerHTML = `<div class="alert error">${err.message}</div>`;
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,444 @@
+{% extends "base.html" %}
+{% block title %}Create Account - PocketSmart AI{% endblock %}
+
+{% block content %}
+
+<style>
+.otp-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.otp-box {
+    width: 45px;
+    height: 50px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+</style>
+
+<div class="auth-box">
+
+  <h2>Create Your Account</h2>
+
+  <div id="alert-box"></div>
+
+  <!-- REGISTER FORM -->
+  <form id="register-form">
+
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="username" required>
+    </div>
+
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="email" required>
+    </div>
+
+    <div class="field">
+      <label>Full Name (optional)</label>
+      <input type="text" id="full_name">
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <input
+        type="password"
+        id="password"
+        required
+        minlength="6"
+      >
+    </div>
+
+    <div class="field">
+      <label>Confirm Password</label>
+      <input
+        type="password"
+        id="confirm_password"
+        required
+        minlength="6"
+      >
+    </div>
+
+    <button
+      type="submit"
+      class="btn full"
+      id="register-btn">
+      Send OTP
+    </button>
+
+  </form>
+
+
+  <!-- OTP SECTION -->
+  <div
+    id="otp-section"
+    style="display:none; margin-top:20px;"
+  >
+
+    <p style="text-align:center;">
+      Enter the 6-digit OTP sent to your email
+    </p>
+
+    <div class="otp-container">
+
+      <input
+        type="text"
+        class="otp-box"
+        maxlength="1"
+        inputmode="numeric"
+      >
+
+      <input
+        type="text"
+        class="otp-box"
+        maxlength="1"
+        inputmode="numeric"
+      >
+
+      <input
+        type="text"
+        class="otp-box"
+        maxlength="1"
+        inputmode="numeric"
+      >
+
+      <input
+        type="text"
+        class="otp-box"
+        maxlength="1"
+        inputmode="numeric"
+      >
+
+      <input
+        type="text"
+        class="otp-box"
+        maxlength="1"
+        inputmode="numeric"
+      >
+
+      <input
+        type="text"
+        class="otp-box"
+        maxlength="1"
+        inputmode="numeric"
+      >
+
+    </div>
+
+
+    <button
+      type="button"
+      class="btn full"
+      id="verify-otp-btn">
+      Verify OTP
+    </button>
+
+    <p style="text-align:center; margin-top:10px;">
+      OTP is valid for <strong>1 minute</strong>.
+    </p>
+
+  </div>
+
+</div>
+
+
+<script>
+
+let registeredUsername = "";
+
+
+/* =========================================
+   REGISTER + SEND OTP
+========================================= */
+
+document
+  .getElementById("register-form")
+  .addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    const alertBox =
+      document.getElementById("alert-box");
+
+    alertBox.innerHTML = "";
+
+    const password =
+      document.getElementById("password").value;
+
+    const confirm =
+      document.getElementById("confirm_password").value;
+
+
+    /* Password check */
+
+    if (password !== confirm) {
+
+      alertBox.innerHTML =
+        '<div class="alert error">Passwords do not match.</div>';
+
+      return;
+    }
+
+
+    /* Registration data */
+
+    const payload = {
+
+      username:
+        document.getElementById("username").value,
+
+      email:
+        document.getElementById("email").value,
+
+      full_name:
+        document.getElementById("full_name").value || null,
+
+      password:
+        password
+    };
+
+
+    const registerBtn =
+      document.getElementById("register-btn");
+
+
+    try {
+
+      registerBtn.disabled = true;
+
+      registerBtn.innerText =
+        "Sending OTP...";
+
+
+      const res = await fetch("/register", {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(payload)
+
+      });
+
+
+      const data = await res.json();
+
+
+      if (!res.ok) {
+
+        throw new Error(
+          data.detail || "Registration failed"
+        );
+
+      }
+
+
+      /* Save username for OTP verification */
+
+      registeredUsername =
+        payload.username;
+
+
+      alertBox.innerHTML =
+        '<div class="alert success">OTP sent to your email. Please check your inbox.</div>';
+
+
+      /* Show OTP section */
+
+      document
+        .getElementById("otp-section")
+        .style.display = "block";
+
+
+      /* Keep Send OTP disabled */
+
+      registerBtn.disabled = true;
+
+    }
+
+
+    catch (err) {
+
+      registerBtn.disabled = false;
+
+      registerBtn.innerText =
+        "Send OTP";
+
+
+      alertBox.innerHTML =
+        `<div class="alert error">${err.message}</div>`;
+
+    }
+
+});
+
+
+/* =========================================
+   OTP BOXES
+========================================= */
+
+const otpBoxes =
+  document.querySelectorAll(".otp-box");
+
+
+otpBoxes.forEach((box, index) => {
+
+
+  /* Automatically move to next box */
+
+  box.addEventListener("input", () => {
+
+    box.value =
+      box.value.replace(/\D/g, "");
+
+
+    if (
+      box.value &&
+      index < otpBoxes.length - 1
+    ) {
+
+      otpBoxes[index + 1].focus();
+
+    }
+
+  });
+
+
+  /* Backspace → previous box */
+
+  box.addEventListener("keydown", (e) => {
+
+    if (
+      e.key === "Backspace" &&
+      !box.value &&
+      index > 0
+    ) {
+
+      otpBoxes[index - 1].focus();
+
+    }
+
+  });
+
+});
+
+
+/* =========================================
+   VERIFY OTP
+========================================= */
+
+document
+  .getElementById("verify-otp-btn")
+  .addEventListener("click", async () => {
+
+
+    const alertBox =
+      document.getElementById("alert-box");
+
+
+    /* Combine all 6 boxes */
+
+    let otp = "";
+
+
+    otpBoxes.forEach((box) => {
+
+      otp += box.value;
+
+    });
+
+
+    /* Check 6 digits */
+
+    if (otp.length !== 6) {
+
+      alertBox.innerHTML =
+        '<div class="alert error">Please enter all 6 digits of the OTP.</div>';
+
+      return;
+
+    }
+
+
+    try {
+
+      const res = await fetch("/verify-otp", {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+
+          username:
+            registeredUsername,
+
+          otp:
+            otp
+
+        })
+
+      });
+
+
+      const data =
+        await res.json();
+
+
+      if (!res.ok) {
+
+        throw new Error(
+          data.detail ||
+          "OTP verification failed"
+        );
+
+      }
+
+
+      /* Success */
+
+      alertBox.innerHTML =
+        '<div class="alert success">OTP verified successfully! Account created.</div>';
+
+
+      document
+        .getElementById("verify-otp-btn")
+        .disabled = true;
+
+
+      /* Go to login */
+
+      setTimeout(() => {
+
+        window.location.href =
+          "/login";
+
+      }, 1500);
+
+    }
+
+
+    catch (err) {
+
+      alertBox.innerHTML =
+        `<div class="alert error">${err.message}</div>`;
+
+    }
+
+});
+
+
+</script>
+
+{% endblock %}
