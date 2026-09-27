@@ -144,7 +144,7 @@ def save_upload_file(upload_file: UploadFile) -> str:
 @app.get("/")
 async def index(request: Request):
     current_user = await get_current_user(request)
-    return templates.TemplateResponse("index.html", {"request": request, "user": current_user})
+    return templates.TemplateResponse(request,"index.html", {"request": request, "user": current_user})
 
 
 @app.get("/login")
@@ -152,7 +152,7 @@ async def login_page(request: Request):
     current_user = await get_current_user(request)
     if current_user:
         return RedirectResponse(url="/dashboard", status_code=status.HTTP_302_FOUND)
-    return templates.TemplateResponse("login.html", {"request": request, "user": None})
+    return templates.TemplateResponse(request, "login.html", {"request": request, "user": None})
 
 @app.get("/forgot-password")
 async def forgot_password_page(request: Request):
@@ -169,37 +169,37 @@ async def register_page(request: Request):
     current_user = await get_current_user(request)
     if current_user:
         return RedirectResponse(url="/dashboard", status_code=status.HTTP_302_FOUND)
-    return templates.TemplateResponse("register.html", {"request": request, "user": None})
+    return templates.TemplateResponse(request, "register.html", {"request": request, "user": None})
 
 
 @app.get("/dashboard")
 async def dashboard(request: Request, current_user: UserInDB = Depends(get_current_active_user)):
     history = get_history(current_user.username)[:5]
     return templates.TemplateResponse(
-        "dashboard.html",
+        request, "dashboard.html",
         {"request": request, "user": current_user, "recent": history},
     )
 
 
 @app.get("/home-planner")
 async def home_planner(request: Request, current_user: UserInDB = Depends(get_current_active_user)):
-    return templates.TemplateResponse("home_planner.html", {"request": request, "user": current_user})
+    return templates.TemplateResponse(request, "home_planner.html", {"request": request, "user": current_user})
 
 
 @app.get("/party-planner")
 async def party_planner(request: Request, current_user: UserInDB = Depends(get_current_active_user)):
-    return templates.TemplateResponse("party_planner.html", {"request": request, "user": current_user})
+    return templates.TemplateResponse(request, "party_planner.html", {"request": request, "user": current_user})
 
 
 @app.get("/jewelry-planner")
 async def jewelry_planner(request: Request, current_user: UserInDB = Depends(get_current_active_user)):
-    return templates.TemplateResponse("jewelry_planner.html", {"request": request, "user": current_user})
+    return templates.TemplateResponse(request, "jewelry_planner.html", {"request": request, "user": current_user})
 
 
 @app.get("/history")
 async def history_page(request: Request, current_user: UserInDB = Depends(get_current_active_user)):
     history = get_history(current_user.username)
-    return templates.TemplateResponse("history.html", {"request": request, "user": current_user, "history": history})
+    return templates.TemplateResponse(request, "history.html", {"request": request, "user": current_user, "history": history})
 
 
 # =========================================================================
