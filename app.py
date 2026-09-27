@@ -23,8 +23,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from dotenv import load_dotenv
 import random
-import smtplib
-from email.message import EmailMessage
+import resend
 from pydantic import BaseModel
 from database import init_db, get_db_connection 
 from models import (
@@ -50,42 +49,54 @@ from ai_service import (
 
 load_dotenv()
 def send_otp_email(email, otp):
-    sender_email = os.getenv("EMAIL_ADDRESS")
-    sender_password = os.getenv("EMAIL_PASSWORD")
+    resend.api_key = os.getenv("RESEND_API_KEY")
 
-    if not sender_email or not sender_password:
+    if not resend.api_key:
         raise HTTPException(
             status_code=500,
-            detail="Email configuration is missing"
+            detail="Resend API key is missing"
         )
 
-    msg = EmailMessage()
+    params = {
+        "from": "PocketSmart AI <onboarding@resend.dev>",
+        "to": [email],
+        "subject": "PocketSmart AI - Email Verification OTP",
+        "html": f"""
+        <html>
+        <body>
+            <h2>PocketSmart AI - Email Verification</h2>
 
-    msg["Subject"] = "PocketSmart AI - Email Verification OTP"
-    msg["From"] = sender_email
-    msg["To"] = email
+            <p>Hello,</p>
 
-    msg.set_content(
-        f"""
-Hello,
+            <p>Your verification OTP is:</p>
 
-Your PocketSmart AI verification OTP is:
+            <h1>{otp}</h1>
 
-{otp}
+            <p>
+                This OTP is valid for <b>1 minute</b>.
+            </p>
 
-This OTP is valid for 1 minute.
+            <p>
+                If you did not request this OTP, please ignore this email.
+            </p>
 
-If you did not request this OTP, please ignore this email.
+            <p>Regards,<br>
+            PocketSmart AI</p>
+        </body>
+        </html>
+        """
+    }
 
-Regards,
-PocketSmart AI
-"""
-    )
+    try:
+        email_response = resend.Emails.send(params)
+        print("OTP EMAIL SENT:", email_response)
 
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        server.starttls()
-        server.login(sender_email, sender_password)
-        server.send_message(msg)
+    except Exception as e:
+        print("OTP EMAIL ERROR:", e)
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to send OTP email"
+        )
 
 app = FastAPI(title="PocketSmart AI: Your Smart Budget & Recommendation Assistant")
 
