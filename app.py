@@ -158,7 +158,7 @@ async def login_page(request: Request):
 async def forgot_password_page(request: Request):
 
     return templates.TemplateResponse(
-        "forgot_password.html",
+        request, "forgot_password.html",
         {
             "request": request
         }
